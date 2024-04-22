@@ -39,6 +39,21 @@ with open("endpoints.yaml") as f:
 # Custom Endpoints
 #------------------------------------------------
 
+
+@app.get("/traffic/{page}")
+def traffic_by_page(page):
+     with eng.connect() as con:
+        query = """
+                SELECT *
+                FROM traffic
+                ORDER BY traffic_id
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page)})
+        return [r._asdict() for r in res]
+
+
 @app.get("/movies/{page}")
 def movies_by_page(page):
      with eng.connect() as con:
