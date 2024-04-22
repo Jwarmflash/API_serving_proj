@@ -40,22 +40,9 @@ with open("endpoints.yaml") as f:
 #------------------------------------------------
 
 
+
 @app.get("/traffic/{page}")
-def traffic_by_page(page):
-     with eng.connect() as con:
-        query = """
-                SELECT *
-                FROM traffic
-                ORDER BY traffic_id
-                LIMIT 50
-                OFFSET :off
-                """
-        res = con.execute(text(query), {'off': 50*int(page)})
-        return [r._asdict() for r in res]
-
-
-@app.get("/traffic/avg/{page}")
-def traffic_by_page(page):
+def traffic_by_page(page, hour:int=null):
      with eng.connect() as con:
         query = """
                 SELECT 
@@ -75,6 +62,22 @@ def traffic_by_page(page):
                 LIMIT 50
                 OFFSET :off
                 """
-        res = con.execute(text(query), {'off': 50*int(page)})
+        if hour is not null:
+            query = """
+                SELECT 
+                  hour, 
+                  round(avg(current_speed),3) AS average_speed,
+                  round(avg(free_flow_speed),3) AS average_free_flow_speed,
+                  round(avg(current_speed/free_flow_speed)*100,3) AS pct_free_flow_capacity
+                FROM traffic
+                JOIN datetimes
+                ON traffic.time_id = datetimes.time_id
+                WHERE hour = :hr
+                GROUP BY hour
+                ORDER BY hour
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page), 'hr': hour})
         return [r._asdict() for r in res]
 
