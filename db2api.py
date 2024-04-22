@@ -40,7 +40,7 @@ with open("endpoints.yaml") as f:
 #------------------------------------------------
 
 
-@app.get("/speeds/{page}")
+@app.get("/traffic/{page}")
 def traffic_by_page(page):
      with eng.connect() as con:
         query = """
@@ -54,13 +54,24 @@ def traffic_by_page(page):
         return [r._asdict() for r in res]
 
 
-@app.get("/movies/{page}")
-def movies_by_page(page):
+@app.get("/traffic/{page}/avg")
+def traffic_by_page(page):
      with eng.connect() as con:
         query = """
-                SELECT *
-                FROM movies
-                ORDER BY index
+                SELECT 
+                  traffic_id,
+                  road_id,
+                  current_speed,
+                  free_flow_speed,
+                  round(current_speed::NUMERIC/free_flow_speed*100,2) AS speed_pct_of_capacity,
+                  current_travel_time,
+                  free_flow_travel_time,
+                  current_travel_time-free_flow_travel_time AS additional_travel_time_due_to_traffic,
+                  time_added_pst AS time_pst
+                FROM traffic
+                JOIN datetimes
+                ON traffic.time_id = datetimes.time_id
+                ORDER BY traffic_id
                 LIMIT 50
                 OFFSET :off
                 """
