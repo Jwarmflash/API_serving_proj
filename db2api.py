@@ -42,7 +42,7 @@ with open("endpoints.yaml") as f:
 
 
 @app.get("/traffic/{page}")
-def traffic_by_page(page):
+def traffic_by_page(page, city:str=None):
      with eng.connect() as con:
         query = """
                 SELECT 
@@ -58,11 +58,35 @@ def traffic_by_page(page):
                 FROM traffic
                 JOIN datetimes
                 ON traffic.time_id = datetimes.time_id
+                JOIN roads
+                ON traffic.road_id = roads.road_id
                 ORDER BY traffic_id
                 LIMIT 50
                 OFFSET :off
                 """
-        res = con.execute(text(query), {'off': 50*int(page)})
+        if city is not None:
+            query = """
+                SELECT 
+                  traffic_id,
+                  road_id,
+                  current_speed,
+                  free_flow_speed,
+                  round(current_speed::NUMERIC/free_flow_speed*100,2) AS speed_pct_of_capacity,
+                  current_travel_time,
+                  free_flow_travel_time,
+                  current_travel_time-free_flow_travel_time AS additional_travel_time_due_to_traffic,
+                  time_added_pst AS time_pst
+                FROM traffic
+                JOIN datetimes
+                ON traffic.time_id = datetimes.time_id
+                JOIN roads
+                ON traffic.road_id = roads.road_id
+                WHERE city = :ct
+                ORDER BY traffic_id
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page), 'ct': city})
         return [r._asdict() for r in res]
 
 
