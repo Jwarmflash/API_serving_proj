@@ -47,7 +47,8 @@ def traffic_by_page(page, city:str=None):
         query = """
                 SELECT 
                   traffic_id,
-                  road_id,
+                  traffic.road_id,
+                  city,
                   current_speed,
                   free_flow_speed,
                   round(current_speed::NUMERIC/free_flow_speed*100,2) AS speed_pct_of_capacity,
@@ -68,7 +69,8 @@ def traffic_by_page(page, city:str=None):
             query = """
                 SELECT 
                   traffic_id,
-                  road_id,
+                  traffic.road_id,
+                  city,
                   current_speed,
                   free_flow_speed,
                   round(current_speed::NUMERIC/free_flow_speed*100,2) AS speed_pct_of_capacity,
