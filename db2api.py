@@ -54,7 +54,7 @@ def traffic_by_page(page):
         return [r._asdict() for r in res]
 
 
-@app.get("/traffic/{page}/avg")
+@app.get("/traffic/avg/{page}")
 def traffic_by_page(page):
      with eng.connect() as con:
         query = """
