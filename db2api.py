@@ -40,7 +40,7 @@ with open("endpoints.yaml") as f:
 #------------------------------------------------
 
 
-@app.get("/traffic/{page}")
+@app.get("/speeds/{page}")
 def traffic_by_page(page):
      with eng.connect() as con:
         query = """
