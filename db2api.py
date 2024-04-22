@@ -68,7 +68,7 @@ def traffic_by_page(page):
 
 
 @app.get("/avgtraffic/{page}")
-def avg_traffic_by_page(page, hour:int=None):
+def avg_traffic_by_page(page, hour:int=None, day:int=None):
      with eng.connect() as con:
         query = """
                 SELECT 
@@ -100,5 +100,24 @@ def avg_traffic_by_page(page, hour:int=None):
                 LIMIT 50
                 OFFSET :off
                 """
-        res = con.execute(text(query), {'off': 50*int(page), 'hr': hour})
+        if day is not None:
+            query = """
+                SELECT 
+                  day_name, 
+                  round(avg(current_speed),3) AS average_speed,
+                  round(avg(free_flow_speed),3) AS average_free_flow_speed,
+                  round(avg(current_speed/free_flow_speed)*100,3) AS pct_free_flow_capacity
+                FROM traffic
+                JOIN datetimes
+                ON traffic.time_id = datetimes.time_id
+                WHERE day_name = :dy
+                GROUP BY day_name
+                ORDER BY pct_free_flow_capacity
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page), 'dy': day})
         return [r._asdict() for r in res]
+
+
+
