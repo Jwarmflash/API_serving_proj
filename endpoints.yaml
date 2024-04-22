@@ -1,2 +1,13 @@
 /: SHOW SERVER_VERSION
 /tz: SHOW TIMEZONE
+/grouphours: SELECT 
+  hour, 
+  round(avg(current_speed),3) AS average_speed,
+  round(avg(free_flow_speed),3) AS average_free_flow_speed,
+  round(avg(current_speed/free_flow_speed)*100,3) AS pct_free_flow_capacity
+FROM traffic
+JOIN datetimes
+ON traffic.time_id = datetimes.time_id
+GROUP BY hour
+ORDER BY hour
+;
