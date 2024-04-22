@@ -100,7 +100,7 @@ def avg_hour_traffic_by_page(page, hour:int=None):
                 LIMIT 50
                 OFFSET :off
                 """
-        res = con.execute(text(query), {'off': 50*int(page), 'dy': day})
+        res = con.execute(text(query), {'off': 50*int(page), 'hr': hour})
         return [r._asdict() for r in res]
 
 
