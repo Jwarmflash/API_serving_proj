@@ -42,7 +42,7 @@ with open("endpoints.yaml") as f:
 
 
 @app.get("/traffic/{page}")
-def traffic_by_page(page, hour:int=null):
+def traffic_by_page(page, hour:int=none):
      with eng.connect() as con:
         query = """
                 SELECT 
@@ -62,7 +62,7 @@ def traffic_by_page(page, hour:int=null):
                 LIMIT 50
                 OFFSET :off
                 """
-        if hour is not null:
+        if hour is not none:
             query = """
                 SELECT 
                   hour, 
