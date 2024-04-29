@@ -167,5 +167,44 @@ def avg_day_traffic_by_page(page, day:str=None):
         return [r._asdict() for r in res]
 
 
+@app.get("/trafficbyweather/{page}")
+def traffic_by_page(page, weather:str=None):
+     with eng.connect() as con:
+        query = """
+                SELECT 
+                    conditions,
+                    date_weather,
+                    road_id1 AS road_id,
+                    current_speed,
+                    free_flow_speed,
+                    current_speed::NUMERIC/free_flow_speed*100 AS pct_speed_of_capacity,
+                    cloud_cover,
+                    temperature
+                FROM traffic_weather
+                WHERE date_weather IS NOT NULL
+                  AND city='Portland'
+                LIMIT 50
+                OFFSET :off
+                """
+        if weather is not None:
+            query = """
+                SELECT 
+                    conditions,
+                    date_weather,
+                    road_id1 AS road_id,
+                    current_speed,
+                    free_flow_speed,
+                    current_speed::NUMERIC/free_flow_speed*100 AS pct_speed_of_capacity,
+                    cloud_cover,
+                    temperature
+                FROM traffic_weather
+                WHERE date_weather IS NOT NULL
+                  AND city='Portland'
+                  AND conditions ~ :wh'
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page), 'wh': weather})
+        return [r._asdict() for r in res]
 
 
