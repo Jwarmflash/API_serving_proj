@@ -212,7 +212,7 @@ def weather_stuff_by_page(page):
      with eng.connect() as con:
         query = """
                 SELECT *
-                FROM weather_backup_data
+                FROM remote2.weather_backup_data
                 ORDER BY id
                 LIMIT 50
                 OFFSET :off
