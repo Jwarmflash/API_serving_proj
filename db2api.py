@@ -220,3 +220,62 @@ def weather_stuff_by_page(page):
         res = con.execute(text(query), {'off': 50*int(page)})
         return [r._asdict() for r in res]
 
+@app.get("/mtbh/{page}")
+def mtbh_by_page(page, hour:int=None):
+     with eng.connect() as con:
+        query = """
+                SELECT MAX(temperature) AS max_temp, DATE_PART AS hour
+                FROM(SELECT DISTINCT(DATE_PART('hour', timestamp_pacific)), temperature 
+                FROM remote2.weather_backup_data)
+                WHERE DATE_PART IS NOT NULL
+                GROUP BY DATE_PART
+                ORDER BY DATE_PART
+                LIMIT 50
+                OFFSET :off
+                """
+        if hour is not None:
+            query = """
+                SELECT MAX(temperature) AS max_temp, DATE_PART AS hour
+                FROM(SELECT DISTINCT(DATE_PART('hour', timestamp_pacific)), temperature 
+                FROM remote2.weather_backup_data)
+                WHERE DATE_PART IS NOT NULL
+                AND DATE_PART = :hr
+                GROUP BY DATE_PART
+                ORDER BY DATE_PART
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page), 'hr': hour})
+        return [r._asdict() for r in res]
+
+
+@app.get("/mintbh/{page}")
+def mintbh_by_page(page, hour:int=None):
+     with eng.connect() as con:
+        query = """
+                SELECT MIN(temperature) AS min_temp, DATE_PART AS hour
+                FROM(SELECT DISTINCT(DATE_PART('hour', timestamp_pacific)), temperature 
+                FROM remote2.weather_backup_data)
+                WHERE DATE_PART IS NOT NULL
+                GROUP BY DATE_PART
+                ORDER BY DATE_PART
+                LIMIT 50
+                OFFSET :off
+                """
+        if hour is not None:
+            query = """
+                SELECT MIN(temperature) AS min_temp, DATE_PART AS hour
+                FROM(SELECT DISTINCT(DATE_PART('hour', timestamp_pacific)), temperature 
+                FROM remote2.weather_backup_data)
+                WHERE DATE_PART IS NOT NULL
+                AND DATE_PART = :hr
+                GROUP BY DATE_PART
+                ORDER BY DATE_PART
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page), 'hr': hour})
+        return [r._asdict() for r in res]
+
+
+
