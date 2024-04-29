@@ -200,7 +200,7 @@ def traffic_weather_by_page(page, weather:str=None):
                 FROM traffic_weather
                 WHERE date_weather IS NOT NULL
                   AND city='Portland'
-                  AND conditions ILIKE :wh
+                  AND conditions ILIKE '%' + :wh + '%'
                 LIMIT 50
                 OFFSET :off
                 """
