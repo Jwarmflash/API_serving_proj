@@ -207,4 +207,16 @@ def traffic_weather_by_page(page, weather:str=None):
         res = con.execute(text(query), {'off': 50*int(page), 'wh': weather})
         return [r._asdict() for r in res]
 
+@app.get("/weather_stuff/{page}")
+def weather_stuff_by_page(page):
+     with eng.connect() as con:
+        query = """
+                SELECT *
+                FROM weather_backup_data
+                ORDER BY id
+                LIMIT 50
+                OFFSET :off
+                """
+        res = con.execute(text(query), {'off': 50*int(page)})
+        return [r._asdict() for r in res]
 
